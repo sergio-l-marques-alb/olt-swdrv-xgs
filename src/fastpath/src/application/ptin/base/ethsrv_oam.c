@@ -674,7 +674,7 @@ int del_mip(u32 i_mip, T_ETH_SRV_OAM *p_oam) {
 
 u32 proc_ethsrv_oam(T_ETH_SRV_OAM *p_oam, u32 T_ms) {
 u8 timeout=0, time_2_send_ccms=0, time_2_send_csf;
-u32 i, tmout, n_rmeps=0, n_active_MEPs=0;
+u32 i, tmout, n_rmeps=0, n_procssd_meps=0;
 T_MEP       *_p_mep;
 T_MEP_DB    *p_mep_db, *p_mep_dbi;
 T_MEP_CSF   *_p_mep_csf;
@@ -712,7 +712,7 @@ static u32 j, meps_procssd_per_function_call=0;
     if (!valid_oam_tmr(_p_mep->tmout)) continue; //return;
     tmout= OAM_TMR_CODE_TO_ms[_p_mep->tmout];// % N_OAM_TMR_VALUES];
 
-    ++n_active_MEPs;
+    ++n_procssd_meps;
 
     if (NULL!=p_mep_dbi->hw_ccm_mep_db_update) {    //HW MEP?
     T_MEP_DB mep_db;
@@ -903,7 +903,7 @@ _proc_ethsrv_oam_DM_function_end:;
     // -------------------------------------------------------------------- LM Function
  }//for (j=meps_procssd_per_function_call; j; j--)
 
- return n_active_MEPs;
+ return n_procssd_meps;
 }//proc_ethsrv_oam
 
 

@@ -933,7 +933,7 @@ extern int del_mip(u32 i_mip, T_ETH_SRV_OAM *p_oam);
 
 
 //PROCESS - to be called periodically
-//returns the number of active MEPs
+//returns the number of processed MEPs
 extern u32 proc_ethsrv_oam(T_ETH_SRV_OAM *p_oam, u32 T_ms);
 
 //EVENT - to be called for every OAM packet received
