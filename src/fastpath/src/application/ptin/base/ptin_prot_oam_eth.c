@@ -36,7 +36,7 @@
 /* *******************************************************************************/
 
 T_ETH_SRV_OAM oam;
-static u32 n_used_MEPs=0;
+static u32 n_used_meps=0;
 
 #define PTIN_ETH_OAM_TIMER_EVENT    0
 
@@ -557,6 +557,10 @@ void ptin_oam_eth_task(void)
 
       switch (msg.msgId) {
       case PTIN_CCM_PACKET_MESSAGE_ID:  //CCM Rx
+          if (0==n_used_meps) {
+              PT_LOG_PEDANTIC(LOG_CTX_OAM,"OAM pkt rx but no MEPs configured");
+              break;
+          }
           //PT_LOG_INFO(LOG_CTX_OAM,"ETH OAM packet received OK");
           {
            L7_uint32 i, ptin_port;//, vid;
@@ -565,7 +569,7 @@ void ptin_oam_eth_task(void)
            /* FIXME TC16SXG: intIfNum->ptin_port */
            if (L7_SUCCESS!=ptin_intf_intIfNum2port(msg.intIfNum, newOuterVlanId /*msg.vlanId*/, &ptin_port))
            {
-               PT_LOG_INFO(LOG_CTX_OAM,"but in invalid port");
+               PT_LOG_DEBUG(LOG_CTX_OAM,"but in invalid port");
                break;
            }
 
@@ -597,7 +601,7 @@ void ptin_oam_eth_task(void)
                    if (debug_APS_CCM_pktTimer) proc_runtime_stop(PTIN_PROC_CCM_RX_INSTANCE3);
                    goto _ptin_oam_eth_task1;
                default:
-                   PT_LOG_INFO(LOG_CTX_OAM,"but unexpected ETH type");
+                   PT_LOG_DEBUG(LOG_CTX_OAM,"but unexpected ETH type");
                    goto _ptin_oam_eth_task1;
                }//switch
            }//for
@@ -605,11 +609,13 @@ _ptin_oam_eth_task1:;
           }
           break;
       case PTIN_ETH_OAM_TIMER_EVENT:    //Timer
-          n_used_MEPs = proc_ethsrv_oam(&oam, 10);
-          osapiTimerAdd((void *)ptin_eth_oamTimerCallback, L7_NULL, L7_NULL, n_used_MEPs?   10: 1000, &ptin_eth_oamTimer);
+          n_used_meps = proc_ethsrv_oam(&oam, 10);
+          //CAVEAT: T_ms must be MEP_MIN_T_ms for this to hold (i.e.,
+          //the nr of used to be equal to the nr of processed MEPs per call)
+          osapiTimerAdd((void *)ptin_eth_oamTimerCallback, L7_NULL, L7_NULL, n_used_meps?   10: 1000, &ptin_eth_oamTimer);
           break;
       default:
-          PT_LOG_INFO(LOG_CTX_OAM,"ETH OAM packet received NOK");
+          PT_LOG_DEBUG(LOG_CTX_OAM,"ETH OAM packet received NOK");
       }//switch
 
   }//while (1)
@@ -664,7 +670,7 @@ L7_uint32 i;
         ptin_ccm_packet_trap(oam.db[i].mep.prt, oam.db[i].mep.vid, oam.db[i].mep.level, 0);
     }
     init_eth_srv_oam(&oam);
-    n_used_MEPs = 0;
+    n_used_meps = 0;
     {
      unsigned long j;
      for (i=0; i<PTIN_SYS_SLOTS_MAX; i++)
