@@ -132,6 +132,7 @@ int swdrv_reset_time_regs(void);
 #define PT_LOG_FATAL    xLOG_FATAL
 #define PT_LOG_HEXDUMP  xLOG_HEXDUMP
 
+#define PEDANTIC_ENABLED(ctx) log_sev_check(ctx, LOG_SEV_PEDANTIC)
 #define TRACE_ENABLED(ctx) log_sev_check(ctx, LOG_SEV_TRACE)
 #define DEBUG_ENABLED(ctx) log_sev_check(ctx, LOG_SEV_DEBUG)
 

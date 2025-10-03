@@ -558,7 +558,9 @@ void ptin_oam_eth_task(void)
       switch (msg.msgId) {
       case PTIN_CCM_PACKET_MESSAGE_ID:  //CCM Rx
           if (0==n_used_meps) {
-              PT_LOG_PEDANTIC(LOG_CTX_OAM,"OAM pkt rx but no MEPs configured");
+              if (PEDANTIC_ENABLED(LOG_CTX_OAM)) {
+                  PT_LOG_WARN(LOG_CTX_OAM, "OAM pkt rx but no MEPs configured");
+              }
               break;
           }
           //PT_LOG_INFO(LOG_CTX_OAM,"ETH OAM packet received OK");
@@ -569,7 +571,9 @@ void ptin_oam_eth_task(void)
            /* FIXME TC16SXG: intIfNum->ptin_port */
            if (L7_SUCCESS!=ptin_intf_intIfNum2port(msg.intIfNum, newOuterVlanId /*msg.vlanId*/, &ptin_port))
            {
-               PT_LOG_DEBUG(LOG_CTX_OAM,"but in invalid port");
+               if (DEBUG_ENABLED(LOG_CTX_OAM)) {
+                   PT_LOG_ERR(LOG_CTX_OAM, "but in invalid port");
+               }
                break;
            }
 
@@ -595,13 +599,17 @@ void ptin_oam_eth_task(void)
                     int r;
 
                     if ((r=rx_oam_pckt(ptin_port, &msg.payload[i], msg.payloadLen-i, /*msg.vlanId*/ newOuterVlanId, msg.payload, &msg.payload[L7_MAC_ADDR_LEN], &oam, msg.timestamp)))
-                        PT_LOG_INFO(LOG_CTX_OAM,"rx_oam_pckt()==%d", r);
+                        if (PEDANTIC_ENABLED(LOG_CTX_OAM)) {
+                            PT_LOG_WARN(LOG_CTX_OAM, "rx_oam_pckt()==%d", r);
+                        }
                    }
                    //time_rx_ccm(1);
                    if (debug_APS_CCM_pktTimer) proc_runtime_stop(PTIN_PROC_CCM_RX_INSTANCE3);
                    goto _ptin_oam_eth_task1;
                default:
-                   PT_LOG_DEBUG(LOG_CTX_OAM,"but unexpected ETH type");
+                   if (TRACE_ENABLED(LOG_CTX_OAM)) {
+                       PT_LOG_ERR(LOG_CTX_OAM, "but unexpected ETH type");
+                   }
                    goto _ptin_oam_eth_task1;
                }//switch
            }//for
@@ -615,7 +623,9 @@ _ptin_oam_eth_task1:;
           osapiTimerAdd((void *)ptin_eth_oamTimerCallback, L7_NULL, L7_NULL, n_used_meps?   10: 1000, &ptin_eth_oamTimer);
           break;
       default:
-          PT_LOG_DEBUG(LOG_CTX_OAM,"ETH OAM packet received NOK");
+          if (DEBUG_ENABLED(LOG_CTX_OAM)) {
+              PT_LOG_ERR(LOG_CTX_OAM, "ETH OAM packet received NOK");
+          }
       }//switch
 
   }//while (1)
