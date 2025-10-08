@@ -380,7 +380,7 @@ L7_RC_t ptin_remote_PHY_control(L7_uint16 slot, L7_uint16 port,
       return L7_FAILURE;
     }
 
-
+#if 0
     { /* Disable ALS */
       msg_HwEthernet_t cfg_msg;
 
@@ -411,7 +411,7 @@ L7_RC_t ptin_remote_PHY_control(L7_uint16 slot, L7_uint16 port,
         return L7_FAILURE;
       }
     }
-
+#endif
     return L7_SUCCESS;
 }
 
