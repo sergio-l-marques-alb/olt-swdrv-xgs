@@ -221,9 +221,8 @@ unsigned char ptin_prot_uplink_over_phy_or_laser(L7_uint8 protIdx) {
                    "Invalid protIdx %u (>=%u)", protIdx, MAX_UPLINK_PROT);
         return 0xff;
     }
-    //return PROT_UPLINK_FLAGS_STDBY_LASER_MASK &
-    //       uplinkprot[protIdx].protParams.flags?    1: 0;
-    return 1;
+    return PROT_UPLINK_FLAGS_STDBY_LASER_MASK &
+           uplinkprot[protIdx].protParams.flags?    1: 0;
 }
 
 /**
