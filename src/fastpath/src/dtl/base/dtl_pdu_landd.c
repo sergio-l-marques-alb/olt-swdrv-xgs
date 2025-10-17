@@ -290,10 +290,10 @@ L7_RC_t dtlPduTransmit( L7_netBufHandle bufHandle,
   if ( (nimCheckIfNumber(dtlCmdInfo->intfNum) == L7_SUCCESS) &&
       ((nimGetIntfLinkState(dtlCmdInfo->intfNum, &linkState) != L7_SUCCESS) || (linkState != L7_UP)))
   {
-    if (ptin_debug_dtl)
-      PT_LOG_NOTICE(LOG_CTX_DTL,"Silently ignoring packet transmission. Outgoing interface [intIfNum=%u] is down!",dtlCmdInfo->intfNum);    
-    SYSAPI_NET_MBUF_FREE(bufHandle);
-    return L7_SUCCESS;
+    //if (ptin_debug_dtl)
+    //  PT_LOG_NOTICE(LOG_CTX_DTL,"Silently ignoring packet transmission. Outgoing interface [intIfNum=%u] is down!",dtlCmdInfo->intfNum);    
+    //SYSAPI_NET_MBUF_FREE(bufHandle);
+    //return L7_SUCCESS;
   }
 
   // Added temporary debug (To be removed)

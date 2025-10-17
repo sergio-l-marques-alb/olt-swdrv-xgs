@@ -306,9 +306,9 @@ int send_eth_pckt(L7_uint16 port, L7_uint8 up1_down0,
 //Ignore if the port has link down
     if ( (nimGetIntfActiveState(intIfNum, &activeState) != L7_SUCCESS) || (activeState != L7_ACTIVE) )
     {
-      if (ptin_debug_oam)
-        PT_LOG_DEBUG(LOG_CTX_OAM,"Silently ignoring packet transmission. Outgoing interface [intIfNum=%u] is down!",intIfNum);    
-      return L7_SUCCESS;
+      //if (ptin_debug_oam)
+      //  PT_LOG_DEBUG(LOG_CTX_OAM,"Silently ignoring packet transmission. Outgoing interface [intIfNum=%u] is down!",intIfNum);    
+      //return L7_SUCCESS;
     }
 
 #ifdef PTIN_ENABLE_ERPS
