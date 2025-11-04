@@ -391,11 +391,8 @@ L7_RC_t ptin_intf_post_init(void)
     }
 #endif
 
-#if (PTIN_BOARD == PTIN_BOARD_AG16GA)
-    rc = usmDbDvlantagIntfModeSet(1, map_port2intIfNum[i], L7_DISABLE);  
-#else
-	rc = usmDbDvlantagIntfModeSet(1, map_port2intIfNum[i], L7_ENABLE);
-#endif
+    rc = usmDbDvlantagIntfModeSet(1, map_port2intIfNum[i], L7_ENABLE);
+
     if (rc != L7_SUCCESS)
     {
       PT_LOG_CRITIC(LOG_CTX_INTF, "Failed to enable DVLAN mode on port# %u", i);
@@ -438,6 +435,17 @@ L7_RC_t ptin_intf_post_init(void)
     if (ptin_qos_intf_default(i) != L7_SUCCESS)
     {
       PT_LOG_ERR(LOG_CTX_INTF, "Phy# %u: Error initializing QoS definitions",i);
+      return L7_FAILURE;
+    }
+
+    /* This a fix procedure for dtag mode because the fastpath mode sometimes doent apply on HW
+       this configuration. Is a know issue that happen the first time on mirror module. The disable and enable configuration
+       ensures that the fastpath corretly detects de change on dtag mode configuration*/
+    rc = usmDbDvlantagIntfModeSet(1, map_port2intIfNum[i], L7_DISABLE);
+    rc = usmDbDvlantagIntfModeSet(1, map_port2intIfNum[i], L7_ENABLE);
+    if (rc != L7_SUCCESS)
+    {
+      PT_LOG_CRITIC(LOG_CTX_INTF, "Failed to enable DVLAN mode on port# %u", i);
       return L7_FAILURE;
     }
   }
@@ -6062,7 +6070,7 @@ L7_RC_t ptin_tap_set_tc16sxg_aspen(void)
 #define PTIN_PHY_SWITCH2ASPEN_MAIN  0x2a
 #define PTIN_PHY_SWITCH2ASPEN_POST  3
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
-            PTIN_PHY_SWITCH2ASPEN_POST},    //Não nos deram este valor
+            PTIN_PHY_SWITCH2ASPEN_POST},    //NÃ£o nos deram este valor
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
             PTIN_PHY_SWITCH2ASPEN_POST},
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
@@ -6078,7 +6086,7 @@ L7_RC_t ptin_tap_set_tc16sxg_aspen(void)
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
             PTIN_PHY_SWITCH2ASPEN_POST},
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
-            PTIN_PHY_SWITCH2ASPEN_POST},    //Não nos deram este valor
+            PTIN_PHY_SWITCH2ASPEN_POST},    //NÃ£o nos deram este valor
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
             PTIN_PHY_SWITCH2ASPEN_POST},
         {PTIN_PHY_SWITCH2ASPEN_PRE, PTIN_PHY_SWITCH2ASPEN_MAIN,
