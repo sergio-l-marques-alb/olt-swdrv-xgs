@@ -1,1 +1,18 @@
-/usr/local/ptin/sbin/fp.shell dev $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+#!/bin/sh
+
+CMD_MAX_ARGS=25
+
+# $# minus 1 because of $0
+let "insrtd_args = $# - 1"
+
+if [ "$insrtd_args" -gt "$CMD_MAX_ARGS" ]
+then
+    echo "Please check the code for CMD_MAX_ARGS (currently $CMD_MAX_ARGS)!"
+    #osapi_devshell.c
+    echo "$insrtd_args have been inserted"
+else
+
+    /usr/local/ptin/sbin/fp.shell dev $@
+
+fi
+

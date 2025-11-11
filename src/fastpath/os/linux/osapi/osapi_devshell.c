@@ -63,11 +63,14 @@ L7_int32 osapiDevshell(L7_char8 * name, L7_int32 * rc,
 			      );
 
 #define CMD_MAX_SIZE    256
+/* Do please maintain CMD_MAX_ARGS coherent with swdrv.dev
+   and also check for hardcoded args dependent on its value*/
 #define CMD_MAX_ARGS     25 
 
 static L7_char8 shell_strings[CMD_MAX_ARGS][CMD_MAX_SIZE];
 
-static L7_int32 osapiDevShellParseCmd(L7_char8 * cmd,L7_char8 * func_name,L7_int32 * args,L7_BOOL * arg_strings)
+static L7_int32 osapiDevShellParseCmd(L7_char8 * cmd, L7_char8 * func_name,
+                                      L7_int32 args[], L7_BOOL arg_strings[])
 {
   L7_int32 i;
   L7_int32 j;
@@ -75,9 +78,9 @@ static L7_int32 osapiDevShellParseCmd(L7_char8 * cmd,L7_char8 * func_name,L7_int
   L7_int32 string_start,string_end;
   L7_int32 end_of_cmd=0;
 
-  memset (func_name, 0,CMD_MAX_SIZE);
-  memset ((L7_char8 *)args, 0,CMD_MAX_ARGS*sizeof(L7_int32));
-  memset ((L7_char8 *)shell_strings, 0,CMD_MAX_ARGS*CMD_MAX_SIZE);
+  memset (func_name, 0, CMD_MAX_SIZE);
+  memset ((L7_char8 *)args, 0, CMD_MAX_ARGS*sizeof(args[0]));
+  memset ((L7_char8 *)shell_strings, 0, sizeof(shell_strings));
   j=0;
   k=0;
   string_start=0;
@@ -103,6 +106,7 @@ static L7_int32 osapiDevShellParseCmd(L7_char8 * cmd,L7_char8 * func_name,L7_int
           }
           string_start=0;
           string_end=0;
+          if (j >= 1 + CMD_MAX_ARGS) return 1; //Exceeding CMD_MAX_ARGS
           if (j >= 1) {
             args[j-1]=PTR_TO_UINT32(shell_strings[j-1]);
             arg_strings[j-1] = L7_TRUE;
@@ -110,6 +114,7 @@ static L7_int32 osapiDevShellParseCmd(L7_char8 * cmd,L7_char8 * func_name,L7_int
           }
         }
         else if (k!=i && !string_start) {
+          if (j >= 1 + CMD_MAX_ARGS) return 1; //Exceeding CMD_MAX_ARGS
           if (j >= 1) {
 
             if ((cmd[k] == '0') && ((cmd[k+1] == 'x') || (cmd[k+1] == 'X'))) {
@@ -165,16 +170,25 @@ L7_uint32 osapiDevShellCommand(L7_char8 * cmd)
 
    memset(arg_strings, 0, sizeof(arg_strings));
 
-   osapiDevShellParseCmd(cmd,func_name,args,arg_strings);
+   if (1 == osapiDevShellParseCmd(cmd, func_name, args, arg_strings))
+   {
+       PT_LOG_ERR(LOG_CTX_MISC, "CMD_MAX_ARGS = %u exceeded", CMD_MAX_ARGS);
+       printf("\nERROR: CMD_MAX_ARGS = %u exceeded\n", CMD_MAX_ARGS);
+       return 0;
+   }
 
    if (func_name[0])
    {
       func_addr = osapiAddressLookup(func_name);
       func_ptr  = (L7_FUNCPTR) UINT_TO_PTR(func_addr);
 
-      PT_LOG_TRACE(LOG_CTX_MISC,"cmd=\"%s\" func_name=\"%s\" func_addr=0x%llx func_ptr=0x%llx args[0]=%d args[1]=%d args[2]=%d",
-                   cmd, func_name, func_addr, PTR_TO_UINT64(func_ptr), args[0], args[1], args[2]);
-
+      PT_LOG_TRACE(LOG_CTX_MISC,
+                   "cmd=\"%s\" func_name=\"%s\" func_addr=0x%llx "
+                   "func_ptr=0x%llx args[0]=%d args[1]=%d args[2]=%d "
+                   "... args[24]=%d",
+                   cmd, func_name, func_addr,
+                   PTR_TO_UINT64(func_ptr), args[0], args[1], args[2],
+                   args[24]);
       if (func_ptr)
       {
          rc=func_ptr(args[0],args[1],args[2],args[3],args[4],
@@ -220,6 +234,7 @@ L7_uint32 osapiDevShellCommand(L7_char8 * cmd)
   {
      printf("\nParse error.\n");
   }
+
   return 0;
 }
 #endif
