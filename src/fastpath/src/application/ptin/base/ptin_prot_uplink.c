@@ -231,6 +231,12 @@ unsigned char ptin_prot_uplink_over_phy_or_laser(L7_uint8 protIdx) {
  * @param slot
  * @param port
  * @param txdisable : L7_TRUE => laser OFF; L7_FALSE => laser ON 
+ *  
+ * The following parameters are historical.
+ * Before using msg_UplnkProtLaserAct / CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT,
+ * st_HwEthernet / CHMSG_xxxx_ETH_CONFIG was used, the very same used by GL/MNG
+ * (hence this change), which needed some way to say if there was an UPLNKPROT
+ * entity acting upon the interface.
  * @param ctrl_back_2_fwctrl : L7_TRUE => FWCTRL has l. control,
  *                             L7_FALSE => SWDRV does
  *                             (via ....stmALSConf)
@@ -253,7 +259,7 @@ L7_RC_t ptin_remote_laser_control(L7_uint16 slot, L7_uint16 port,
                                    L7_int ctrl_back_2_fwctrl,
                                    L7_uint32 try)
 {
-    msg_HwEthernet_t cfg_msg;
+    msg_UplnkProtLaserAct cfg_msg; //CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT
     L7_uint32 ipAddr = 0;
     //L7_uint32 answer, answer_size;
     int ret;
@@ -271,28 +277,15 @@ L7_RC_t ptin_remote_laser_control(L7_uint16 slot, L7_uint16 port,
     }
 
     /* Prepare message contents */
-    memset(&cfg_msg, 0x00, sizeof(msg_HwEthernet_t));
-    cfg_msg.slotIndex = ENDIAN_SWAP8(slot);
-    cfg_msg.BoardType = ENDIAN_SWAP8(0);
-    cfg_msg.InterfaceIndex = ENDIAN_SWAP8(port);
-    cfg_msg.conf_mask = ENDIAN_SWAP16(0x1800);
-
-    if (ctrl_back_2_fwctrl) {
-        //Give laser control back to FWCTRL:
-        cfg_msg.optico.stmALSConf  = ENDIAN_SWAP8(L7_TRUE);
-    }
-    else {
-        //SWDRV has laser control:
-        cfg_msg.optico.stmALSConf  = ENDIAN_SWAP8(L7_FALSE);
-    }
+    memset(&cfg_msg, 0x00, sizeof(cfg_msg));
+    cfg_msg.InterfaceIndex = (unsigned char) port;
 
     if (txdisable) {
-        cfg_msg.optico.laserON_OFF = ENDIAN_SWAP8(L7_FALSE);
+        cfg_msg.laser_on_off = L7_FALSE;
     }
     else {
-        cfg_msg.optico.laserON_OFF = ENDIAN_SWAP8(L7_TRUE);
+        cfg_msg.laser_on_off = L7_TRUE;
     }
-    //Was cfg_msg.optico.laserON_OFF = ENDIAN_SWAP8(!(txdisable & 1));
 
     PT_LOG_INFO(LOG_CTX_INTF,
                 "Try %u: Sending message to slotId %u / ipAddr 0x%08x",
@@ -301,10 +294,10 @@ L7_RC_t ptin_remote_laser_control(L7_uint16 slot, L7_uint16 port,
     //answer_size = sizeof(L7_uint32);
     ret = send_ipc_message(IPC_HW_PORTO_MSG_CXP, //IPC_HARDWARE_PORT,
                            ipAddr,
-                           CHMSG_TUxG_ETH_CONFIG, //MSG_TUxG_ETH_CONFIG,
+                           CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT,
                            (char *) &cfg_msg,
                            NULL, //(char *) &answer,
-                           sizeof(msg_HwEthernet_t),
+                           sizeof(cfg_msg),
                            NULL); //&answer_size);
 
     if (ret != 0)
@@ -353,7 +346,7 @@ L7_RC_t ptin_remote_PHY_control(L7_uint16 slot, L7_uint16 port,
     }
 
     /* Prepare message contents */
-    memset(&cfg_msg, 0x00, sizeof(msg_UplnkProtDisJustTX));
+    memset(&cfg_msg, 0x00, sizeof(cfg_msg));
     cfg_msg.slotIndex = ENDIAN_SWAP8(slot);
     cfg_msg.BoardType = ENDIAN_SWAP8(0);
     cfg_msg.InterfaceIndex = ENDIAN_SWAP8(port);
@@ -369,7 +362,7 @@ L7_RC_t ptin_remote_PHY_control(L7_uint16 slot, L7_uint16 port,
                            CHMSG_ETH_CONFIG_UPLNKPROT_DISBL_JUST_TX,
                            (char *) &cfg_msg,
                            NULL, //(char *) &answer,
-                           sizeof(msg_UplnkProtDisJustTX),
+                           sizeof(cfg_msg),
                            NULL); //&answer_size);
 
     if (ret != 0)

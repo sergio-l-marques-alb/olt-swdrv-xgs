@@ -359,6 +359,9 @@
 
 /* Messages sent to other entities */
 #define CHMSG_TUxG_ETH_CONFIG                     0x9411    /* msg_HwEthernet_t */
+/* CHMSG_xxxx_ETH_CONFIG was eventually replaced by CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT
+   so UPLNKPROT doesn't use the same MSG as GL/MNG*/
+#define CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT               0x9420
 #if (PTIN_BOARD == PTIN_BOARD_CXO160G)
 #define CHMSG_ETH_CONFIG_UPLNKPROT_DISBL_JUST_TX  0x9415    /* msg_UplnkProtDisJustTX */
 #else   /*#elif (PTIN_BOARD == PTIN_BOARD_CXO640G)*/
@@ -3291,6 +3294,16 @@ typedef struct
   unsigned char        serviceType;                  // 4000 - { 1 - inni, 0 - uni }
 } __attribute__ ((packed)) msg_HwEthernet_t;
 
+typedef struct
+{
+  //No more need for slot and boardtype
+  //unsigned char        slotIndex;
+  //unsigned char        BoardType;
+  unsigned char        InterfaceIndex;
+
+  unsigned char        laser_on_off;                 //LaserON (1) / LaserOFF (0)
+  /* IMP: when erasing an UPLNKPROT entity, we must enable all interfaces */
+} __attribute__ ((packed)) msg_UplnkProtLaserAct;
 
 typedef struct
 {
