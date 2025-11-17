@@ -1151,6 +1151,16 @@ extern L7_RC_t ptin_slot_link_force(L7_int slot_id, L7_int slot_port, L7_uint8 l
 extern L7_RC_t ptin_slot_action_insert(L7_uint16 slot_id, L7_uint16 board_id);
 
 /**
+ * Called in response to a FWCTRL TU40G(R) request to 
+ * reconfigure UPLKNK PROT HW 
+ * 
+ * @param slot_id 
+ * 
+ * @return L7_RC_t 
+ */
+extern L7_RC_t ptin_tu40g_prot_uplink_intf_reload(L7_uint16 slot_id);
+
+/**
  * Procedure for board removal
  * 
  * @author mruas (5/28/2014)

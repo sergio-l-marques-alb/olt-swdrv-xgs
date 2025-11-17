@@ -357,17 +357,27 @@
 #define CCMSG_LAST_MSG_ID                                  0x91FF
 
 
+
+
 /* Messages sent to other entities */
 #define CHMSG_TUxG_ETH_CONFIG                     0x9411    /* msg_HwEthernet_t */
 /* CHMSG_xxxx_ETH_CONFIG was eventually replaced by CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT
    so UPLNKPROT doesn't use the same MSG as GL/MNG*/
-#define CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT               0x9420
+#define CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT               0x9420   /* msg_UplnkProtLaserAct */
+
 #if (PTIN_BOARD == PTIN_BOARD_CXO160G)
 #define CHMSG_ETH_CONFIG_UPLNKPROT_DISBL_JUST_TX  0x9415    /* msg_UplnkProtDisJustTX */
 #else   /*#elif (PTIN_BOARD == PTIN_BOARD_CXO640G)*/
 #define CHMSG_ETH_CONFIG_UPLNKPROT_DISBL_JUST_TX  0x9419    /* msg_UplnkProtDisJustTX */
 #endif
 #define CHMSG_ETH_UPLNKPROT_MON_FWCTRL_LNKST      0x9418
+
+/* Trap sent FWCTRL=>SWDRV (f.i. @TU40G(R) insertion) so we resend
+   CHMSG_xxxx_ETH_UPLNKPROT_LASER_ACT (laser) + CHMSG_ETH_CONFIG_UPLNKPROT_DISBL_JUST_TX (PHY) */
+#define CHMSG_TU40G_ETH_UPLNKPROT_FWCTRL_RELOAD_REQ 0x941A   /* msg_UplnkProtFwctrlReloadReq */
+
+
+
 
 /*Multicast Package Defines*/
 #ifndef PTIN_IGMP_PACKAGE_MASK_UNIT
@@ -3304,6 +3314,13 @@ typedef struct
   unsigned char        laser_on_off;                 //LaserON (1) / LaserOFF (0)
   /* IMP: when erasing an UPLNKPROT entity, we must enable all interfaces */
 } __attribute__ ((packed)) msg_UplnkProtLaserAct;
+
+typedef struct
+{
+  unsigned char        slotIndex;
+  //unsigned char        BoardType;     //No need
+  unsigned char        InterfaceIndex;  //Currently unused
+} __attribute__ ((packed)) msg_UplnkProtFwctrlReloadReq;
 
 typedef struct
 {

@@ -897,6 +897,28 @@ int CHMessageHandler (ipc_msg *inbuffer, ipc_msg *outbuffer)
       return IPC_OK;
     }
 
+    case CHMSG_TU40G_ETH_UPLNKPROT_FWCTRL_RELOAD_REQ:
+    {
+      unsigned char slot;
+
+      PT_LOG_INFO(LOG_CTX_MSGHANDLER, "Message received: CHMSG_TUxG_ETH_UPLNKPROT_FWCTRL_RELOAD_REQ (0x%04X)", msgId);
+
+      CHECK_INFO_SIZE_ATLEAST_ABS(sizeof(msg_UplnkProtFwctrlReloadReq));
+
+      slot = ((msg_UplnkProtFwctrlReloadReq *)inbuffer->info)->slotIndex;
+      PT_LOG_INFO(LOG_CTX_MSGHANDLER, "Slot %u", slot);
+
+      /* Execute command */
+      rc = ptin_tu40g_prot_uplink_intf_reload(slot);
+
+      if (L7_SUCCESS != rc)
+      {
+        PT_LOG_ERR(LOG_CTX_MSGHANDLER, "Error reading info");
+      }
+
+      return IPC_NO_REPLY;
+    }
+
     case CHMSG_UPLINKPROT_SHOW:
     {
       PT_LOG_INFO(LOG_CTX_MSGHANDLER, "Message received: CHMSG_UPLINKPROT_SHOW (0x%04X)", msgId);

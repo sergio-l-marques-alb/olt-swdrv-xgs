@@ -6889,6 +6889,33 @@ L7_RC_t ptin_slot_action_insert(L7_uint16 slot_id, L7_uint16 board_id)
   return rc_global;
 }
 
+L7_RC_t ptin_tu40g_prot_uplink_intf_reload(L7_uint16 slot_id)
+{
+#if (PTIN_BOARD != PTIN_BOARD_CXO640G)
+  return L7_NOT_SUPPORTED;
+#else
+  L7_uint8 port;
+  L7_uint32 ptin_port;
+
+  if (slot_id < PTIN_SYS_LC_SLOT_MIN || slot_id > PTIN_SYS_LC_SLOT_MAX)
+  {
+    PT_LOG_ERR(LOG_CTX_INTF,"Invalid slot_id=%d", slot_id);
+    return L7_FAILURE;
+  }
+
+  /* Run all physical ports of this uplink board */
+  for (port = 0; port < 4; port++)
+  {
+    if (ptin_intf_slotPort2port(slot_id, port, &ptin_port) == L7_SUCCESS)
+    {
+      ptin_prot_uplink_intf_reload(ptin_port);
+    }
+  }
+
+  return L7_SUCCESS;
+#endif
+}
+
 /**
  * Procedure for board removal
  * 
