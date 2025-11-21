@@ -3665,6 +3665,19 @@ L7_RC_t ptin_prot_uplink_create(L7_uint8 protIdx, ptin_intf_t *intf1, ptin_intf_
     }
     else
     {
+      #if (PTIN_BOARD_IS_MATRIX)
+      if (ptin_fpga_mx_is_matrixactive())
+      {
+        PT_LOG_INFO(LOG_CTX_INTF, "MC is active. Going to activate lasers...");
+        uplinkprot[protIdx].machine_suspended = L7_FALSE;
+      }
+      else
+      {
+        PT_LOG_INFO(LOG_CTX_INTF, "MC is Inactive. Suspending machine...");
+        uplinkprot[protIdx].machine_suspended = L7_TRUE;
+      }
+      #endif
+
       osapiSemaGive(ptin_prot_uplink_sem);
       PT_LOG_WARN(LOG_CTX_INTF, "Protection group %u alrteady exists", protIdx);
       return L7_SUCCESS;
