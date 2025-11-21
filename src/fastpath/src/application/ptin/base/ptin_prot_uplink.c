@@ -3668,7 +3668,7 @@ L7_RC_t ptin_prot_uplink_create(L7_uint8 protIdx, ptin_intf_t *intf1, ptin_intf_
       #if (PTIN_BOARD_IS_MATRIX)
       if (ptin_fpga_mx_is_matrixactive())
       {
-        PT_LOG_INFO(LOG_CTX_INTF, "MC is active. Going to activate lasers...");
+        PT_LOG_INFO(LOG_CTX_INTF, "MC is active.");
         uplinkprot[protIdx].machine_suspended = L7_FALSE;
       }
       else
