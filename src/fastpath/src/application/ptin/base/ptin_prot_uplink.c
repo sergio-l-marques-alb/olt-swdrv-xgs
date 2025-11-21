@@ -3510,6 +3510,19 @@ L7_RC_t ptin_prot_uplink_command(L7_uint8 protIdx, PROT_OPCMD_t cmd, PROT_PortTy
 
   osapiSemaTake(ptin_prot_uplink_sem, L7_WAIT_FOREVER);
 
+  #if (PTIN_BOARD_IS_MATRIX)
+  if (ptin_fpga_mx_is_matrixactive())
+  {
+    PT_LOG_INFO(LOG_CTX_INTF, "MC is active.");
+    uplinkprot[protIdx].machine_suspended = L7_FALSE;
+  }
+  else
+  {
+    PT_LOG_INFO(LOG_CTX_INTF, "MC is Inactive. Suspending machine...");
+    uplinkprot[protIdx].machine_suspended = L7_TRUE;
+  }
+  #endif
+
   if (uplinkprot[protIdx].machine_suspended)
   {
     osapiSemaGive(ptin_prot_uplink_sem);
