@@ -1035,7 +1035,7 @@ SYSNET_PDU_RC_t dsPacketIntercept(L7_uint32 hookId,
           return SYSNET_PDU_RC_IGNORED;
         }
 #endif /* If DHCP server is there */
-#if 0 /* PTIN Daniel - Impedia funcionamento se intf de clinte fosse trusted. Nem sequer sei qual era o propósito disto incialmente... o que me deixa algo preocupado */
+#if 0 /* PTIN Daniel - Impedia funcionamento se intf de clinte fosse trusted. Nem sequer sei qual era o propï¿½sito disto incialmente... o que me deixa algo preocupado */
         if (_dsVlanIntfTrustGet(pduInfo->vlanId,pduInfo->intIfNum) /*_dsIntfTrustGet(pduInfo->intIfNum)*/) /* Trusted port */   /* PTin modified: DHCP snooping */
         {
           if (ptin_debug_dhcp_snooping)
@@ -4915,7 +4915,7 @@ L7_BOOL dsFilterServerMessage(L7_uint32 intIfNum, L7_ushort16 vlanId,
     if (ptin_debug_dhcp_snooping)
       PT_LOG_TRACE(LOG_CTX_DHCP,"Not a L7_DHCP_BOOTP_REPLY");
     /* Packet not under interest of current function.*/
-    return L7_FALSE;
+    return L7_TRUE;
   }
   /* Do the following binding database processing checks only when DHCP
      Snooping operational on that interface. */
