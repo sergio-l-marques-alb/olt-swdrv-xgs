@@ -771,10 +771,12 @@ L7_RC_t _ptin_prot_uplink_intf_block(L7_uint32 intIfNum, L7_int txdisable,
     else admin_state = admin_state & 1; //L7_ENABLE;
 
     if (0 == admin_state) {
+      if(acting_upon_laser0_phy1)
+      {
         #if defined (UPLNK_PROT_DISABLE_JUST_TX)
         ret = ptin_intf_tx_enable(intIfNum_member, 1);
         #else
-        ret = ptin_remote_PHY_control(slot, port, 0, 0); //try);
+        ret = ptin_remote_PHY_control(slot, port, txdisable, 0); //try);
         #endif
         if (L7_SUCCESS != ret) {
             PT_LOG_ERR(LOG_CTX_INTF,
@@ -782,18 +784,37 @@ L7_RC_t _ptin_prot_uplink_intf_block(L7_uint32 intIfNum, L7_int txdisable,
                        "ptin_intf_tx_enable() = %d", ret);
         }
 
-        ret = ptin_remote_laser_control(slot, port, 1, txdisable<0, 0); //try);
+        ret = ptin_remote_laser_control(slot, port, 0, 0, 0); //try);
         if (L7_SUCCESS != ret) {
             PT_LOG_ERR(LOG_CTX_INTF, "Overriden (interface disabled)");
         }
         else {
             PT_LOG_WARN(LOG_CTX_INTF, "Overriden (interface disabled)");
         }
+      } else
+      {
+        #if defined (UPLNK_PROT_DISABLE_JUST_TX)
+        ptin_intf_tx_enable(intIfNum_member, 1);
+        #else
+        ptin_remote_PHY_control(slot, port, 0, 0); //try);
+        #endif
+        ret = ptin_remote_laser_control(slot, port, 
+                                        txdisable<=0? 0:1,
+                                        txdisable<0,
+                                        0); //try);
+        if (L7_SUCCESS != ret) {
+          PT_LOG_ERR(LOG_CTX_INTF, "Overriden (interface disabled)");
+        }
+        else {
+          PT_LOG_WARN(LOG_CTX_INTF, "Overriden (interface disabled)");
+        }
+      }
     }
     else
-    if (acting_upon_laser0_phy1) {
-        #if defined (UPLNK_PROT_DISABLE_JUST_TX)
-        ret = ptin_intf_tx_enable(intIfNum_member, txdisable <= 0 ? 1 : 0);
+    {
+     if (acting_upon_laser0_phy1) {
+      #if defined (UPLNK_PROT_DISABLE_JUST_TX)
+      ret = ptin_intf_tx_enable(intIfNum_member, txdisable <= 0 ? 1 : 0);
         #else
         ret = ptin_remote_PHY_control(slot, port, txdisable, 0); //try);
         #endif
@@ -811,6 +832,7 @@ L7_RC_t _ptin_prot_uplink_intf_block(L7_uint32 intIfNum, L7_int txdisable,
                                         txdisable<0,
                                         0); //try);
     }
+  }
 #else
     ret = ptin_remote_laser_control(slot, port,
                                     txdisable<=0? 0:1,
