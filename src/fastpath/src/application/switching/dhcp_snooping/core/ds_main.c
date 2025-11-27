@@ -3214,8 +3214,11 @@ L7_BOOL dsFrameFilter(L7_uint32 intIfNum, L7_ushort16 vlanId,
          return L7_FAILURE;
        }
    }
-
-  if (!PTIN_PORT_IS_PON(ptin_port) ) 
+#if (PTIN_BOARD == PTIN_BOARD_TA48GE)
+  if (PTIN_PORT_IS_LAG(ptin_port))
+#else      
+  if (!PTIN_PORT_IS_PON(ptin_port)) 
+#endif  
   {
       /* Discard server packets received on untrusted ports */
     if (dsFilterServerMessage(intIfNum, vlanId, frame, ipHeader, innerVlanId, client_idx))    /* PTin modified: DHCP snooping */
@@ -3225,8 +3228,11 @@ L7_BOOL dsFrameFilter(L7_uint32 intIfNum, L7_ushort16 vlanId,
       return L7_TRUE;
     }
   }
-
+#if (PTIN_BOARD == PTIN_BOARD_TA48GE)
+  if (!PTIN_PORT_IS_LAG(ptin_port))
+#else
   if (PTIN_PORT_IS_PON(ptin_port)) 
+#endif
   {
       /* Discard certain client messages based on rx interface */
       if (dsFilterClientMessage(intIfNum, vlanId, frame, ipHeader, innerVlanId, client_idx))    /* PTin modified: DHCP snooping */
