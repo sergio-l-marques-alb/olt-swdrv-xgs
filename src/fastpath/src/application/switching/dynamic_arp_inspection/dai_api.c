@@ -1610,16 +1610,15 @@ L7_RC_t arpAclRuleInAclNextGet(L7_uchar8 *aclName, L7_uint32 ipAddrIn, L7_enetMa
 *********************************************************************/
 L7_RC_t daiRestore(void)
 {
-  L7_RC_t rc = L7_FAILURE;
-
+  L7_RC_t rc = L7_SUCCESS;
+  #if (PTIN_BOARD_IS_LINECARD)
   osapiWriteLockTake(daiCfgRWLock, L7_WAIT_FOREVER);
   rc = daiRestoreProcess();
   osapiWriteLockGive(daiCfgRWLock);
-
   /*Restore Backplane Ports*/
-  #if (PTIN_BOARD_IS_LINECARD)
   ptin_intf_dai_restore_defaults();
   #endif
+  PT_LOG_INFO(LOG_CTX_MSG, "Performing Reset on DAI...");
 
   return rc;
 }
