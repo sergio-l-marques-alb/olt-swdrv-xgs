@@ -3111,7 +3111,7 @@ L7_RC_t snoopL3GroupPtinPortRemove(L7_uint32 serviceId, L7_uint16 vlanId, L7_ine
         PT_LOG_WARN(LOG_CTX_IGMP, "This channel exists but is not valid (pChannelEntry->pChannelptinPortMask:0x%02X multicast_group:0x%08X)",
                     pChannelEntry->channelPtinPortMask.value[0], multicast_group);
         removeChannelEntry = L7_TRUE;
-        goto ERROR;
+        return L7_FAILURE;
     }
     PT_LOG_TRACE(LOG_CTX_IGMP,
                  "Channel Entry [vlanId:%u groupAddr:%s sourceAddr:%s noOfInterfaces:%u flags:0x%02X pChannelptinPortMask[multicastGroup:0x%08X noOfChannelEntries:%u noOfInterfaces:%u]]",
@@ -3173,6 +3173,14 @@ L7_RC_t snoopL3GroupPtinPortRemove(L7_uint32 serviceId, L7_uint16 vlanId, L7_ine
     goto ERROR;
   }
 
+  if(pChannelEntry->pChannelptinPortMask == L7_NULLPTR)
+  {
+    PT_LOG_ERR(LOG_CTX_IGMP, "Channel's Interface Mask is NULL! [evcId:%u vlanId:%u ptin_port:%u groupAddr:%s sourceAddr:%s isProtection:%u", 
+                serviceId, vlanId, ptin_port, groupAddrStr, sourceAddrStr, isProtection);   
+    removeChannelEntry = L7_TRUE;
+    goto ERROR;
+  }
+
   /*This interface does not belong to this Interface Mask?*/
   if (!PTINPORT_BITMAP_IS_SET(pChannelEntry->pChannelptinPortMask->snoopChannelptinPortMaskInfoDataKey.channelPtinPortMask, ptin_port))
   {
@@ -3209,6 +3217,11 @@ L7_RC_t snoopL3GroupPtinPortRemove(L7_uint32 serviceId, L7_uint16 vlanId, L7_ine
   else
   {
     /*Is it  a dynamic entry?*/
+    if(intIfNum >= (PTIN_SYSTEM_MAXINTERFACES_PER_GROUP/PTIN_PORT_MASK_UNIT+1))
+    {
+      PT_LOG_ERR(LOG_CTX_IGMP,"Invalid Interface Number %u.[evcId:%u vlanId:%u groupAddr:%s sourceAddr:%s intIfNum:%u]",intIfNum,serviceId, vlanId, groupAddrStr, sourceAddrStr, intIfNum);
+      return L7_FAILURE;      
+    }
     if (PTIN_IS_MASKBITSET(pChannelEntry->channelIntfDynamicMask,intIfNum))
     {
       PTIN_UNSET_MASKBIT(pChannelEntry->channelIntfDynamicMask,intIfNum);        
@@ -6071,11 +6084,9 @@ snoopPTinProxyGroup_t* snoopPTinProxyGroupEntryAdd(snoopPTinProxyInterface_t* in
 
   if (pData == L7_NULL)
   {
-    PT_LOG_DEBUG(LOG_CTX_IGMP, "Group Record added to the AVL Tree(vlanId:%u groupAddr:%s recordtype:%u)",interfacePtr->key.vlanId,inetAddrPrint(groupAddr, debug_buf),recordType);
     /*entry was added into the avl tree*/
     if ((pData = snoopPTinProxyGroupEntryFind(interfacePtr->key.vlanId, groupAddr,recordType, AVL_EXACT)) == L7_NULLPTR)
     {
-      PT_LOG_ERR(LOG_CTX_IGMP, "Unable to find Group Record in the AVL Tree, after adding it! (vlanId:%u groupAddr:%s recordtype:%u)",interfacePtr->key.vlanId, inetAddrPrint(groupAddr, debug_buf),recordType);
       return L7_NULLPTR;
     }
     *newEntry=L7_TRUE;
