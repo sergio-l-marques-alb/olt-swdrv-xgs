@@ -15,7 +15,7 @@ export CPU   = pq3
 CURRENT_PATH = $(shell pwd)
 FP_FOLDER    = $(word $(words $(subst /, ,$(CURRENT_PATH))),$(subst /, ,$(CURRENT_PATH)))
 OLT_DIR      = $(subst /$(FP_FOLDER),,$(shell pwd))
-KERNEL_BASE  = /home/olt_shared/switchdrvr/netband-libs/trunk/linux-kernel-legacy
+KERNEL_BASE  = /var/lib/jenkins/workspace/OLT1TX_3.20_build-git/olt360/build/boards/CXO640G-MX
 
 # Cross-Compiler
 export TOOLCHAIN_BASE_DIR = /opt/eldk/usr
@@ -24,7 +24,7 @@ export LD_LIBRARY_PATH    = $(TOOLCHAIN_BASE_DIR)/lib
 CROSS_COMPILE = ppc_85xxDP-
 
 # Kernel and SDK paths
-KERNEL_PATH ?= $(KERNEL_BASE)/linux-denx-3.18.25_cxo640g-mx
+KERNEL_PATH ?= $(KERNEL_BASE)/lib/linux
 SDK_PATH    ?= $(OLT_DIR)/../lib/broadcom-sdk-xgs/sdk-all-switchdrvr-6.5.25/broadcom
 
 # DESTDIR will point to build_dir location (external libs and includes)
