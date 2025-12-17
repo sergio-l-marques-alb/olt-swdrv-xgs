@@ -3217,7 +3217,7 @@ L7_RC_t snoopL3GroupPtinPortRemove(L7_uint32 serviceId, L7_uint16 vlanId, L7_ine
   else
   {
     /*Is it  a dynamic entry?*/
-    if(intIfNum >= (PTIN_SYSTEM_MAXINTERFACES_PER_GROUP/PTIN_PORT_MASK_UNIT+1))
+    if(intIfNum >= PTIN_SYSTEM_MAXINTERFACES_PER_GROUP)
     {
       PT_LOG_ERR(LOG_CTX_IGMP,"Invalid Interface Number %u.[evcId:%u vlanId:%u groupAddr:%s sourceAddr:%s intIfNum:%u]",intIfNum,serviceId, vlanId, groupAddrStr, sourceAddrStr, intIfNum);
       return L7_FAILURE;      
