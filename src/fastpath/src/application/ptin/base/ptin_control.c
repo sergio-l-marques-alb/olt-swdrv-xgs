@@ -2557,6 +2557,9 @@ L7_RC_t ptin_link_state_matrix_send(L7_uint32 intIfNum, L7_PORT_EVENTS_t event)
   L7_uint8 slot;
   char *env_var;
 
+  uint32_t CXO_WORKING_IPADDR    = 0xC0A8C86F;
+  uint32_t CXO_PROTECTION_IPADDR = 0xC0A8C870;
+
   if ((event != L7_UP) && (event != L7_DOWN))
   {
     PT_LOG_ERR(LOG_CTX_CONTROL, "Invalid link event %d for interface %u", event, intIfNum);
@@ -2592,7 +2595,7 @@ L7_RC_t ptin_link_state_matrix_send(L7_uint32 intIfNum, L7_PORT_EVENTS_t event)
   /* NOTE: this sends the message to both matrices without knowing which is the active one */
   /* Send to working matrix */
   if (send_ipc_message(IPC_HW_FP_CTRL_PORT2,
-                       IPC_SERVER_IPADDR_WORKING,
+                       CXO_WORKING_IPADDR,
                        CCMSG_ETH_PHY_LINK_STATE_NOTIFY,
                        (char*)&msg,
                        L7_NULLPTR,
@@ -2609,7 +2612,7 @@ L7_RC_t ptin_link_state_matrix_send(L7_uint32 intIfNum, L7_PORT_EVENTS_t event)
 
   /* Send to protection matrix */
   if (send_ipc_message(IPC_HW_FP_CTRL_PORT2,
-                       IPC_SERVER_IPADDR_PROTECTION,
+                       CXO_PROTECTION_IPADDR,
                        CCMSG_ETH_PHY_LINK_STATE_NOTIFY,
                        (char*)&msg,
                        L7_NULLPTR,
